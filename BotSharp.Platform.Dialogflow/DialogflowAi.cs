@@ -12,6 +12,7 @@ using BotSharp.Platform.Models.AiRequest;
 using BotSharp.Platform.Models.AiResponse;
 using DotNetToolkit;
 using BotSharp.Platform.Dialogflow.Models;
+using System.IO;
 
 namespace BotSharp.Platform.Dialogflow
 {
@@ -63,32 +64,18 @@ namespace BotSharp.Platform.Dialogflow
             return corpus;
         }
 
-        public AiResponse TextRequest(AiRequest request)
-        {
-            var dataService = new AIDataService(new AIConfiguration("TOKEN", SupportedLanguage.English)
-            {
-                AgentId = request.AgentId,
-                Language = SupportedLanguage.English,
-                SessionId = request.SessionId
-            });
-
-            var response = dataService.Request(new AIRequest
-            {
-                SessionId = request.SessionId,
-                Query = new string[] { request.Text }
-            });
-
-            return response.ToObject<AiResponse>();
-        }
-
         public async Task<bool> Train(TAgent agent, TrainingCorpus corpus)
         {
+            string agentDir = Path.Combine(AppDomain.CurrentDomain.GetData("DataPath").ToString(), "Projects", agent.Id);
+            var model = "model_" + DateTime.UtcNow.ToString("yyyyMMdd");
+
             var trainer = new BotTrainer();
+            agent.Corpus = corpus;
 
             var trainOptions = new BotTrainOptions
             {
-                //AgentDir = projectPath,
-                //Model = model
+                AgentDir = agentDir,
+                Model = model
             };
 
             var info = await trainer.Train(agent, trainOptions);
@@ -96,70 +83,9 @@ namespace BotSharp.Platform.Dialogflow
             return true;
         }
 
-        protected float[] TrimSilence(float[] samples)
+        public AiResponse TextRequest(AiRequest request)
         {
-            if (samples == null)
-            {
-                return null;
-            }
-
-            const float min = 0.000001f;
-
-            var startIndex = 0;
-            var endIndex = samples.Length;
-
-            for (var i = 0; i < samples.Length; i++)
-            {
-
-                if (Math.Abs(samples[i]) > min)
-                {
-                    startIndex = i;
-                    break;
-                }
-            }
-
-            for (var i = samples.Length - 1; i > 0; i--)
-            {
-                if (Math.Abs(samples[i]) > min)
-                {
-                    endIndex = i;
-                    break;
-                }
-            }
-
-            if (endIndex <= startIndex)
-            {
-                return null;
-            }
-
-            var result = new float[endIndex - startIndex];
-            Array.Copy(samples, startIndex, result, 0, endIndex - startIndex);
-            return result;
-
-        }
-
-        protected static byte[] ConvertArrayShortToBytes(short[] array)
-        {
-            var numArray = new byte[array.Length * 2];
-            Buffer.BlockCopy(array, 0, numArray, 0, numArray.Length);
-            return numArray;
-        }
-
-        protected static short[] ConvertIeeeToPcm16(float[] source)
-        {
-            var resultBuffer = new short[source.Length];
-            for (var i = 0; i < source.Length; i++)
-            {
-                var f = source[i] * 32768f;
-
-                if (f > (double)short.MaxValue)
-                    f = short.MaxValue;
-                else if (f < (double)short.MinValue)
-                    f = short.MinValue;
-                resultBuffer[i] = Convert.ToInt16(f);
-            }
-
-            return resultBuffer;
+            return new AiResponse();
         }
     }
 }

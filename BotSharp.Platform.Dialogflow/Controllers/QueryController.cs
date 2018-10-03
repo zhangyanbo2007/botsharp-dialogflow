@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using BotSharp.Platform.Abstraction;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
 {
@@ -22,17 +23,6 @@ namespace BotSharp.Platform.Dialogflow.Controllers
     [Route("v1/[controller]")]
     public class QueryController : ControllerBase
     {
-        private readonly IBotPlatform _platform;
-
-        /// <summary>
-        /// Initialize dialog controller and get a platform instance
-        /// </summary>
-        /// <param name="platform"></param>
-        public QueryController(IBotPlatform platform)
-        {
-            _platform = platform;
-        }
-
         /// <summary>
         /// The query endpoint is used to process natural language in the form of text. 
         /// The query requests return structured data in JSON format with an action and parameters for that action.
