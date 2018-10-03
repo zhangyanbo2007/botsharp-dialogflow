@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using BotSharp.Platform.Models.MachineLearning;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
 {
@@ -32,7 +33,7 @@ namespace BotSharp.Platform.Dialogflow.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AgentModel>> Train([FromQuery] string agentId)
+        public async Task<ActionResult<ModelMetaData>> Train([FromQuery] string agentId)
         {
             var agent = builder.GetAgentById(agentId);
 
@@ -43,9 +44,9 @@ namespace BotSharp.Platform.Dialogflow.Controllers
 
             var corpus = builder.ExtractorCorpus(agent);
 
-            await builder.Train(agent, corpus);
+            var meta = await builder.Train(agent, corpus);
 
-            return agent;
+            return meta;
         }
     }
 }

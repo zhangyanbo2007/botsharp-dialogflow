@@ -13,6 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using BotSharp.Platform.Abstraction;
+using Microsoft.Extensions.Configuration;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
 {
@@ -23,6 +24,14 @@ namespace BotSharp.Platform.Dialogflow.Controllers
     [Route("v1/[controller]")]
     public class QueryController : ControllerBase
     {
+        private DialogflowAi<AgentModel> builder;
+
+        public QueryController(IConfiguration configuration)
+        {
+            builder = new DialogflowAi<AgentModel>();
+            builder.PlatformConfig = configuration.GetSection("DialogflowAi");
+        }
+
         /// <summary>
         /// The query endpoint is used to process natural language in the form of text. 
         /// The query requests return structured data in JSON format with an action and parameters for that action.
@@ -34,8 +43,6 @@ namespace BotSharp.Platform.Dialogflow.Controllers
         public ActionResult<AIResponse> Query(QueryModel request)
         {
             String clientAccessToken = (User.Identity as ClaimsIdentity).Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
-            //_platform.AiConfig = new AIConfiguration(clientAccessToken, SupportedLanguage.English);
-            //_platform.AiConfig.SessionId = request.SessionId;
 
             // find a model according to clientAccessToken
             string projectPath = String.Empty;
@@ -45,6 +52,12 @@ namespace BotSharp.Platform.Dialogflow.Controllers
             for (int i = 0; i < d1.Length; i++)
             {
                 string[] d2 = Directory.GetDirectories(d1[i]);
+                var raw = Path.Combine(d1[i], "tmp");
+                if (Directory.Exists(raw))
+                {
+
+                }
+
                 for (int j = 0; j < d2.Length; j++)
                 {
                     string metaJson = System.IO.File.ReadAllText(Path.Combine(d2[j], "meta.json"));

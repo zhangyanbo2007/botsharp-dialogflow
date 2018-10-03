@@ -13,6 +13,7 @@ using BotSharp.Platform.Models.AiResponse;
 using DotNetToolkit;
 using BotSharp.Platform.Dialogflow.Models;
 using System.IO;
+using BotSharp.Platform.Models.MachineLearning;
 
 namespace BotSharp.Platform.Dialogflow
 {
@@ -64,7 +65,7 @@ namespace BotSharp.Platform.Dialogflow
             return corpus;
         }
 
-        public async Task<bool> Train(TAgent agent, TrainingCorpus corpus)
+        public async Task<ModelMetaData> Train(TAgent agent, TrainingCorpus corpus)
         {
             string agentDir = Path.Combine(AppDomain.CurrentDomain.GetData("DataPath").ToString(), "Projects", agent.Id);
             var model = "model_" + DateTime.UtcNow.ToString("yyyyMMdd");
@@ -80,7 +81,7 @@ namespace BotSharp.Platform.Dialogflow
 
             var info = await trainer.Train(agent, trainOptions);
 
-            return true;
+            return info;
         }
 
         public AiResponse TextRequest(AiRequest request)
