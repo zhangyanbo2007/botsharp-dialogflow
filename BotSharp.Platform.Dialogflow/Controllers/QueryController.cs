@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using BotSharp.Platform.Abstraction;
 using Microsoft.Extensions.Configuration;
+using BotSharp.Platform.Models.AiRequest;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
 {
@@ -45,7 +46,7 @@ namespace BotSharp.Platform.Dialogflow.Controllers
             String clientAccessToken = (User.Identity as ClaimsIdentity).Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
 
             // find a model according to clientAccessToken
-            string projectPath = String.Empty;
+            AgentModel agent = null;
             string projectsPath = Path.Combine(AppDomain.CurrentDomain.GetData("DataPath").ToString(), "Projects");
 
             string[] d1 = Directory.GetDirectories(projectsPath);
@@ -53,52 +54,33 @@ namespace BotSharp.Platform.Dialogflow.Controllers
             {
                 string[] d2 = Directory.GetDirectories(d1[i]);
                 var raw = Path.Combine(d1[i], "tmp");
-                if (Directory.Exists(raw))
+                if (!Directory.Exists(raw))
                 {
-
+                    continue;
                 }
 
-                for (int j = 0; j < d2.Length; j++)
+                string metaJson = System.IO.File.ReadAllText(Path.Combine(raw, "meta.json"));
+
+                var meta = JsonConvert.DeserializeObject<AgentImportHeader>(metaJson);
+
+                if (meta.ClientAccessToken == clientAccessToken)
                 {
-                    string metaJson = System.IO.File.ReadAllText(Path.Combine(d2[j], "meta.json"));
-
-                    var meta = JsonConvert.DeserializeObject<AgentImportHeader>(metaJson);
-
-                    if (meta.ClientAccessToken == clientAccessToken)
-                    {
-                        projectPath = d1[i];
-                        break;
-                    }
-                };
-
-                if (!String.IsNullOrEmpty(projectPath))
-                {
+                    agent = builder.GetAgentById(meta.Id);
                     break;
                 }
             };
 
-            // Load agent
-            string model = Directory.GetDirectories(projectPath).Where(x => x.Contains("model_")).Last().Split(Path.DirectorySeparatorChar).Last();
-            string dataDir = Path.Combine(projectPath, model);
-            
-            if(!System.IO.File.Exists(Path.Combine(dataDir, "model-meta.json")))
+            if(agent == null)
             {
-                return BadRequest("The agent hasn't been trained. Please train the agent before querying.");
+                return BadRequest("The agent not found.");
             }
 
-            Console.WriteLine($"LoadAgentFromFile {dataDir}");
-
-            //_platform.LoadAgentFromFile(dataDir);
-
-            /*var aIResponse = _platform.TextRequest(new AIRequest
+            var aIResponse = builder.TextRequest(new AiRequest
             {
-                Timezone = request.Timezone,
-                Contexts = request?.Contexts?.Select(x => new AIContext { Name = x })?.ToList(),
-                Language = request.Lang,
-                Query = new String[] { request.Query },
-                AgentDir = projectPath,
-                Model = model
-            });*/
+                Text = request.Query,
+                AgentId = agent.Id,
+                SessionId = request.SessionId
+            });
 
             return null;
         }
