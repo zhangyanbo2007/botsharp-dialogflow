@@ -44,7 +44,7 @@ namespace BotSharp.Platform.Dialogflow.Controllers
 
             var corpus = builder.ExtractorCorpus(agent);
 
-            var meta = await builder.Train(agent, corpus);
+            var meta = await builder.Train(agent, corpus, new BotTrainOptions { });
 
             return meta;
         }
