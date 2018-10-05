@@ -15,6 +15,7 @@ using System.Text;
 using BotSharp.Platform.Abstraction;
 using Microsoft.Extensions.Configuration;
 using BotSharp.Platform.Models.AiRequest;
+using System.Threading.Tasks;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
 {
@@ -27,10 +28,9 @@ namespace BotSharp.Platform.Dialogflow.Controllers
     {
         private DialogflowAi<AgentModel> builder;
 
-        public QueryController(IConfiguration configuration)
+        public QueryController(DialogflowAi<AgentModel> platform)
         {
-            builder = new DialogflowAi<AgentModel>();
-            builder.PlatformConfig = configuration.GetSection("DialogflowAi");
+            builder = platform;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace BotSharp.Platform.Dialogflow.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpGet, HttpPost]
-        public ActionResult<AIResponse> Query(QueryModel request)
+        public async Task<ActionResult<AIResponse>> Query(QueryModel request)
         {
             String clientAccessToken = (User.Identity as ClaimsIdentity).Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
 
@@ -65,7 +65,7 @@ namespace BotSharp.Platform.Dialogflow.Controllers
 
                 if (meta.ClientAccessToken == clientAccessToken)
                 {
-                    agent = builder.GetAgentById(meta.Id);
+                    agent = await builder.GetAgentById(meta.Id);
                     break;
                 }
             };

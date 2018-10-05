@@ -14,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BotSharp.Platform.Models.MachineLearning;
+using BotSharp.Platform.Abstraction;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
 {
@@ -26,23 +27,22 @@ namespace BotSharp.Platform.Dialogflow.Controllers
     {
         private DialogflowAi<AgentModel> builder;
 
-        public TrainController(IConfiguration configuration)
+        public TrainController(DialogflowAi<AgentModel> platform)
         {
-            builder = new DialogflowAi<AgentModel>();
-            builder.PlatformConfig = configuration.GetSection("DialogflowAi");
+            builder = platform;
         }
 
         [HttpPost]
         public async Task<ActionResult<ModelMetaData>> Train([FromQuery] string agentId)
         {
-            var agent = builder.GetAgentById(agentId);
+            var agent = await builder.GetAgentById(agentId);
 
             if(agent == null)
             {
-                agent = builder.GetAgentByName(agentId);
+                agent = await builder.GetAgentByName(agentId);
             }
 
-            var corpus = builder.ExtractorCorpus(agent);
+            var corpus = await builder.ExtractorCorpus(agent);
 
             var meta = await builder.Train(agent, corpus, new BotTrainOptions { });
 

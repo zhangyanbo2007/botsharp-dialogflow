@@ -23,7 +23,14 @@ namespace BotSharp.Platform.Dialogflow
         IPlatformBuilder<TAgent>
         where TAgent : AgentModel
     {
-        public TrainingCorpus ExtractorCorpus(TAgent agent)
+
+        public DialogflowAi(IAgentStorageFactory agentStorageFactory)
+            :base(agentStorageFactory)
+        {
+
+        }
+
+        public async Task<TrainingCorpus> ExtractorCorpus(TAgent agent)
         {
             var corpus = new TrainingCorpus
             {
@@ -66,7 +73,7 @@ namespace BotSharp.Platform.Dialogflow
             return corpus;
         }
 
-        public AiResponse TextRequest(AiRequest request)
+        public async Task<AiResponse> TextRequest(AiRequest request)
         {
             var aiResponse = new AiResponse();
 
@@ -77,10 +84,10 @@ namespace BotSharp.Platform.Dialogflow
             request.AgentDir = projectPath;
             request.Model = model;
 
-            var agent = GetAgentById(request.AgentId);
+            var agent = await GetAgentById(request.AgentId);
 
             var preditor = new BotPredictor();
-            var doc = preditor.Predict(agent, request).Result;
+            var doc = await preditor.Predict(agent, request);
 
             var parameters = new Dictionary<String, Object>();
             if (doc.Sentences[0].Entities == null)

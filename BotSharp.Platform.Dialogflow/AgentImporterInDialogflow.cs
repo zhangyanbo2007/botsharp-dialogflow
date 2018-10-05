@@ -12,6 +12,7 @@ using DotNetToolkit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using BotSharp.Platform.Dialogflow.Models;
+using System.Threading.Tasks;
 
 namespace BotSharp.Platform.Dialogflow
 {
@@ -28,7 +29,7 @@ namespace BotSharp.Platform.Dialogflow
         /// <param name="agentName"></param>
         /// <param name="agentDir"></param>
         /// <returns></returns>
-        public TAgent LoadAgent(AgentImportHeader agentHeader)
+        public async Task<TAgent> LoadAgent(AgentImportHeader agentHeader)
         {
             // load agent profile
             string data = File.ReadAllText(Path.Combine(AgentDir, "agent.json"));
@@ -52,11 +53,12 @@ namespace BotSharp.Platform.Dialogflow
             return result;
         }
 
-        public void LoadCustomEntities(TAgent agent)
+        public async Task LoadCustomEntities(TAgent agent)
         {
             agent.Entities = new List<EntityType>();
             string entityDir = Path.Combine(AgentDir, "entities");
-            if (!Directory.Exists(entityDir)) return;
+            if (!Directory.Exists(entityDir))
+                return;
 
             Directory.EnumerateFiles(entityDir)
                 .ToList()
@@ -87,11 +89,12 @@ namespace BotSharp.Platform.Dialogflow
                 });
         }
 
-        public void LoadIntents(TAgent agent)
+        public async Task LoadIntents(TAgent agent)
         {
             agent.Intents = new List<Intent>();
             string intentDir = Path.Combine(AgentDir, "intents");
-            if (!Directory.Exists(intentDir)) return;
+            if (!Directory.Exists(intentDir))
+                return;
 
             Directory.EnumerateFiles(intentDir)
                 .ToList()
@@ -237,7 +240,7 @@ namespace BotSharp.Platform.Dialogflow
             return newIntent;
         }
 
-        public void LoadBuildinEntities(TAgent agent)
+        public async Task LoadBuildinEntities(TAgent agent)
         {
             agent.Intents.ForEach(intent =>
             {

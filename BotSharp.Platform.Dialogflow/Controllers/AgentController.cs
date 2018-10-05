@@ -1,16 +1,10 @@
-﻿using BotSharp.Core.Engines;
-using DotNetToolkit;
+﻿using BotSharp.Platform.Dialogflow.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using BotSharp.Platform.Dialogflow.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BotSharp.Platform.Dialogflow.Controllers
@@ -27,10 +21,9 @@ namespace BotSharp.Platform.Dialogflow.Controllers
         /// Initialize dialog controller and get a platform instance
         /// </summary>
         /// <param name="platform"></param>
-        public AgentController(IConfiguration configuration)
+        public AgentController(DialogflowAi<AgentModel> platform)
         {
-            builder = new DialogflowAi<AgentModel>();
-            builder.PlatformConfig = configuration.GetSection("DialogflowAi");
+            builder = platform;
         }
 
         /// <summary>
@@ -66,8 +59,8 @@ namespace BotSharp.Platform.Dialogflow.Controllers
             System.IO.File.Delete(filePath);
 
             Console.WriteLine($"Loading agent from folder {dest}");
-            var agent = builder.LoadAgentFromFile<AgentImporterInDialogflow<AgentModel>>(dest);
-            builder.SaveAgent(agent);
+            var agent = await builder.LoadAgentFromFile<AgentImporterInDialogflow<AgentModel>>(dest);
+            await builder.SaveAgent(agent);
 
             return Ok(agent.Id);
         }
