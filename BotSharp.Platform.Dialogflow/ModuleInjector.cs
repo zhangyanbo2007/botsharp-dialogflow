@@ -10,7 +10,7 @@ using System;
 
 namespace BotSharp.Platform.Dialogflow
 {
-    public class DialogflowModule : IModule
+    public class ModuleInjector : IModule
     {
         public void ConfigureServices(IServiceCollection services,IConfiguration config)
         {
