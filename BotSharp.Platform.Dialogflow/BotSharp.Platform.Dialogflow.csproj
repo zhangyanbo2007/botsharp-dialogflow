@@ -1,13 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release;DIALOGFLOW</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DIALOGFLOW|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE;DIALOGFLOW</DefineConstants>
-    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,13 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BotSharp.Core" Version="1.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\BotSharp\BotSharp.Core\BotSharp.Core.csproj" />
-    <ProjectReference Include="..\..\BotSharp\BotSharp.Platform.Abstraction\BotSharp.Platform.Abstraction.csproj" />
-    <ProjectReference Include="..\..\BotSharp\BotSharp.Platform.Models\BotSharp.Platform.Models.csproj" />
   </ItemGroup>
 
 </Project>
