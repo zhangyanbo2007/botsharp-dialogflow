@@ -14,10 +14,11 @@ namespace BotSharp.Platform.Dialogflow
     {
         public void ConfigureServices(IServiceCollection services,IConfiguration config)
         {
-            services.TryAddSingleton<IAgentStorageFactory, AgentStorageFactory>();
+            services.TryAddSingleton<IPlatformSettings, PlatformSettings>();
+            services.TryAddSingleton<IAgentStorageFactory<AgentModel>, AgentStorageFactory<AgentModel>>();
             services.TryAddSingleton<DialogflowAi<AgentModel>>();
 
-            NLUSetting setting = new NLUSetting();
+            var setting = new PlatformSettings();
             config.GetSection("DialogflowAi").Bind(setting);
             services.AddSingleton(setting);
             services.AddSingleton<AgentStorageInMemory<AgentModel>>();
