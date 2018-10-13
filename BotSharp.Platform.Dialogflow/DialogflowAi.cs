@@ -24,8 +24,8 @@ namespace BotSharp.Platform.Dialogflow
         where TAgent : AgentModel
     {
 
-        public DialogflowAi(IAgentStorageFactory<TAgent> agentStorageFactory)
-            :base(agentStorageFactory)
+        public DialogflowAi(IAgentStorageFactory<TAgent> agentStorageFactory, IPlatformSettings settings)
+            :base(agentStorageFactory, settings)
         {
 
         }
